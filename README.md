@@ -1,6 +1,6 @@
 # ClasseraBot
 
-## Installing Dependencies
+### Installing Dependencies
 
 Uses poetry for clean, reproducible installs.
 
