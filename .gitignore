@@ -1,0 +1,46 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+*.manifest
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Pytest
+.cache/
+.coverage
+*.cover
+htmlcov/
+
+# MyPy / Pylint
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+
+# --- Vercel ---
+.vercel
+
+# --- VS Code ---
+.vscode/
+*.code-workspace
+
+# --- OS junk files ---
+.DS_Store
+Thumbs.db
