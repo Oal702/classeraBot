@@ -20,8 +20,6 @@ def start_homework(page: Page):
 
         print(f"Opening homework {i+1}")
         page.locator('input[type="submit"][value="البدء"]').nth(1).click()
-
-        
         complete_homework(page)
 
         # Go back to homework list
