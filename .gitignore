@@ -44,3 +44,6 @@ htmlcov/
 # --- OS junk files ---
 .DS_Store
 Thumbs.db
+
+#the infos of the user
+.env
