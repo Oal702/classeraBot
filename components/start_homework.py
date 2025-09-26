@@ -19,12 +19,12 @@ def start_homework(page: Page):
         page.wait_for_timeout(4000)
 
         print(f"Opening homework {i+1}")
-        page.locator("input[type='submit'][value='البدء']").click()
+        page.locator('input[type="submit"][value="البدء"]').nth(1).click()
+
+        
         complete_homework(page)
 
         # Go back to homework list
-        page.goto(
-            "https://me.classera.com/student/assignments/show_homework#networkfirst"
-        )
+        page.goto("https://me.classera.com/student/assignments/show_homework#networkfirst")
         page.wait_for_timeout(4000)
         print("Done")
