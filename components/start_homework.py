@@ -3,16 +3,11 @@ from components.complete_homework import complete_homework
 
 
 def start_homework(page: Page):
-    page.goto(
-        "https://me.classera.com/student/assignments/show_homework#networkfirst",
-        timeout=60000,
-    )
-    page.wait_for_timeout(500)
+    page.goto("https://me.classera.com/student/assignments/show_homework#networkfirst")
 
     homework_list = page.locator("text=بدء")
     count = homework_list.count()
 
-    # Loop through all homework
     for i in range(count):
         homework = homework_list.nth(i)
         url = homework.get_attribute("url")

@@ -27,11 +27,16 @@ def complete_homework(page: Page):
     questions = page.locator(".widget-body")
     count = questions.count()
 
-    for i in range(count):
+    for i in range(1, count):
         question = questions.nth(i)
 
         p_tags = question.locator("p").all_inner_texts()
         q_text = " ".join(p_tags).strip()
+        if not q_text:
+            print("No <p> tags found, trying .question-main-text-wrapper")
+            p_tags = question.locator(".question-main-text-wrapper").all_inner_texts()
+            q_text = " ".join(p_tags).strip()
+            print("Extracted text, original:", q_text, p_tags)
 
         choices = question.locator("div.answer label")
         choice_texts = []
@@ -57,7 +62,7 @@ def complete_homework(page: Page):
 
         def ask_gpt():
             return client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4o",
                 messages=[
                     {
                         "role": "system",
