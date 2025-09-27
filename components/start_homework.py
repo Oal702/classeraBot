@@ -10,7 +10,7 @@ def start_homework(page: Page):
     count = homework_list.count()
 
     for i in range(count):
-        homework = homework_list.nth(i)
+        homework = homework_list.nth(0)
         url = homework.get_attribute("url")
         full_url = "https://me.classera.com" + url
 
