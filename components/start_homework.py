@@ -3,7 +3,8 @@ from components.complete_homework import complete_homework
 
 
 def start_homework(page: Page):
-    page.goto("https://me.classera.com/student/assignments/show_homework#networkfirst")
+    page.goto("https://me.classera.com/student/assignments/show_homework")
+    page.wait_for_selector("text=بدء", timeout=15000)
 
     homework_list = page.locator("text=بدء")
     count = homework_list.count()
