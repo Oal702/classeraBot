@@ -4,12 +4,13 @@ from components.complete_homework import complete_homework
 
 def start_homework(page: Page):
     page.goto("https://me.classera.com/student/assignments/show_homework")
-    page.wait_for_selector("text= | إعادة المحاولة", timeout=60000)
+    page.wait_for_selector("text= | إعادة المحاولة", timeout=15000)
 
     homework_list = page.locator("text= | إعادة المحاولة")
     count = homework_list.count()
 
     for i in range(count):
+        #nth = i if its "إعادة المحاولة", nth = 0 if its "بدء"
         homework = homework_list.nth(i)
         url = homework.get_attribute("url")
         full_url = "https://me.classera.com" + url

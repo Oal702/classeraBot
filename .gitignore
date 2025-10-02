@@ -46,3 +46,4 @@ htmlcov/
 Thumbs.db
 
 .env
+runtime_images/
