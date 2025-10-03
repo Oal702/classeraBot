@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import random
 from components.helpers.answer_image_questions import extract_question_from_image
 import os
+import re
 
 load_dotenv()
 client = OpenAI()
@@ -73,22 +74,27 @@ def complete_homework(page: Page):
                     {
                         "role": "system",
                         "content": (
-                            "You are answering math multiple-choice questions. "
-                            "First think carefully step by step (do not show reasoning), "
-                            "then give ONLY the final answer as a digit (1 to n)."
+                            "You are answering high-school level multiple-choice questions across multiple subjects. "
+                            "Always reply ONLY in this format:\n"
+                            "explanation: <short reasoning>\n"
+                            "final answer: <digit from 1 to n>"
                         ),
                     },
                     {"role": "user", "content": prompt},
                 ],
                 temperature=0,
-                max_completion_tokens=10,
+                max_completion_tokens=300,
             )
 
         response = ask_gpt()
         raw_answer = response.choices[0].message.content.strip()
-        answer = next((ch for ch in raw_answer if ch.isdigit()), None)
+        match = re.search(r"final answer:\s*(\d+)", raw_answer, re.IGNORECASE)
+        answer = (
+            match.group(1)
+            if match
+            else print(f"ChatGPT response format unexpected: {raw_answer}")
+        )
 
-        print()
         if not answer:
             print(f"ChatGPT gave no valid answer to {q_text!r}. Retrying once.")
             response = ask_gpt()
@@ -97,15 +103,14 @@ def complete_homework(page: Page):
 
         if not answer or not (1 <= int(answer) <= len(choice_texts)):
             print("Second try failed again or out of range. Picking random choice.")
-            answer = str(random.randint(1, 4))
-
+            answer = str(random.randint(1, len(choice_texts)))
+        print(f"chat gpt gave this answer for question {i+1}: {raw_answer}")
         choices.nth(int(answer) - 1).click()
-
 
     page.once("dialog", auto_accept)
     page.locator("#submitbtn").click()
 
-    marks = page.text_content('div.final-mark-focus')
+    marks = page.text_content("div.final-mark-focus")
 
     nums = [int(word) for word in marks.split() if word.isdigit()]
     first_num = nums[0] if len(nums) > 0 else None

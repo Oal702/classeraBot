@@ -5,17 +5,20 @@ from components.complete_homework import complete_homework
 def start_homework(page: Page):
     page.goto("https://me.classera.com/student/assignments/show_homework")
     page.wait_for_selector("text= | إعادة المحاولة", timeout=15000)
+    page.wait_for_selector("text= | إعادة المحاولة", timeout=15000)
 
     homework_list = page.locator("text= | إعادة المحاولة")
     count = homework_list.count()
 
     for i in range(count):
-        #nth = i if its "إعادة المحاولة", nth = 0 if its "بدء"
+        # nth = i if its "إعادة المحاولة", nth = 0 if its "بدء"
         homework = homework_list.nth(i)
         url = homework.get_attribute("url")
         full_url = "https://me.classera.com" + url
 
-        page.goto(full_url)
+        page.goto(
+            "https://me.classera.com/student/courses/homework_info/cid:revhpiSV5bel_e21L6rnQgC1E9/aid:ER1BN4vCGNysK9FBf33q6gC1E9"
+        )
         page.wait_for_timeout(1000)
 
         print(f"Opening homework {i+1}")
