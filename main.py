@@ -12,6 +12,7 @@ def main():
         sign_in(page)
         start_homework(page)
         enter_morfaqaat(page)
+        print("finished everything!")
 
 
 if __name__ == "__main__":

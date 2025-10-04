@@ -30,8 +30,20 @@ def close_modal_if_exists(page: Page):
 def start_homework(page: Page):
     page.goto("https://me.classera.com/student/assignments/show_homework")
     page.wait_for_selector("text= | إعادة المحاولة", timeout=15000)
+    page.wait_for_timeout(1000)
 
     homework_list = page.locator("text=بدء")
+    if homework_list.count() == 0:
+        print("No homework found, checking next page...")
+        next_button = page.locator('.page-link >> text="التالي"')
+        if next_button.count() > 0:
+            next_button.click()
+            page.wait_for_timeout(2000)
+            homework_list = page.locator("text=بدء")
+        else:
+            print("No next button found, exiting...")
+            return
+
     count = homework_list.count()
 
     for i in range(count):
@@ -57,7 +69,9 @@ def start_homework(page: Page):
         if accuracy < 90:
             print("Result less than 90%, Copying answers for retry...")
             close_modal_if_exists(page)
-            retry_with_answers(full_url, page, extract_correct_answers(page, full_url))
+            data = extract_correct_answers(page, full_url)
+            page.wait_for_load_state("domcontentloaded")
+            retry_with_answers(full_url, page, data)
             print("finished retrying...")
         page.goto(
             "https://me.classera.com/student/assignments/show_homework#networkfirst"

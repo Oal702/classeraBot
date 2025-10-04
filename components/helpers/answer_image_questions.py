@@ -1,9 +1,7 @@
 import io
 from google.cloud import vision
-from openai import OpenAI
 
 vision_client = vision.ImageAnnotatorClient()
-openai_client = OpenAI()
 
 
 def extract_question_from_image(image_path: str) -> str:
