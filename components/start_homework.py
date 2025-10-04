@@ -27,26 +27,21 @@ def close_modal_if_exists(page: Page):
         print(f"Failed to hide modal: {e}")
 
 
-def start_homework(page: Page):
+def start_homework(page: Page, pageNum):
     page.goto("https://me.classera.com/student/assignments/show_homework")
+    print(pageNum)
+    if(pageNum > 0):
+        page.click('a.page-link >> text="التالي"')
+        page.wait_for_timeout(1500)
+    
     page.wait_for_selector("text= | إعادة المحاولة", timeout=15000)
-    page.wait_for_timeout(1000)
 
     homework_list = page.locator("text=بدء")
-    if homework_list.count() == 0:
-        print("No homework found, checking next page...")
-        next_button = page.locator('.page-link >> text="التالي"')
-        if next_button.count() > 0:
-            next_button.click()
-            page.wait_for_timeout(2000)
-            homework_list = page.locator("text=بدء")
-        else:
-            print("No next button found, exiting...")
-            return
 
     count = homework_list.count()
-
+    print(count)
     for i in range(count):
+
         # nth = i if its "إعادة المحاولة", nth = 0 if its "بدء"
         homework = homework_list.nth(0)
         url = homework.get_attribute("url")
@@ -73,9 +68,13 @@ def start_homework(page: Page):
             page.wait_for_load_state("domcontentloaded")
             retry_with_answers(full_url, page, data)
             print("finished retrying...")
-        page.goto(
-            "https://me.classera.com/student/assignments/show_homework#networkfirst"
-        )
+        page.goto("https://me.classera.com/student/assignments/show_homework#networkfirst")
+        page.wait_for_timeout(1500)
+
+        if(pageNum > 0):
+            page.click('a.page-link >> text="التالي"')
+            page.wait_for_timeout(1500)
+
         page.wait_for_timeout(750)
         print("Done")
         page.wait_for_timeout(500)

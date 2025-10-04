@@ -43,7 +43,7 @@ def complete_homework(page: Page):
         if not q_text or img_count > 0:
             print(f"Checking for image in question {i+1} (imgs={img_count})...")
             img_path = os.path.join("runtime_images", f"screenshot_q{i+1}.png")
-
+            page.wait_for_timeout(1500)
             question.screenshot(path=img_path)
             ocr_text = extract_question_from_image(img_path).strip()
             if ocr_text:
@@ -103,7 +103,7 @@ def complete_homework(page: Page):
 
         if not answer or not (1 <= int(answer) <= len(choice_texts)):
             print("Second try failed again or out of range. Picking random choice.")
-            answer = str(random.randint(1, len(choice_texts)))
+            answer = str(random.randint(1, 2))
         print(f"chat gpt gave this answer for question {i+1}: {raw_answer}")
         choices.nth(int(answer) - 1).click()
 

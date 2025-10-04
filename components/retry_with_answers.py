@@ -1,6 +1,4 @@
 from playwright.sync_api import Page
-from skimage.metrics import structural_similarity as ssim
-import cv2
 
 
 def auto_accept(dialog):
@@ -70,3 +68,18 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
     # --- Submit ---
     page.once("dialog", auto_accept)
     page.locator("#submitbtn").click()
+
+    marks = page.text_content("div.final-mark-focus")
+
+    nums = [int(word) for word in marks.split() if word.isdigit()]
+    first_num = nums[0] if len(nums) > 0 else None
+    second_num = nums[1] if len(nums) > 1 else None
+
+    print("First:", first_num, type(first_num))
+    print("Second:", second_num, type(second_num))
+
+    if first_num is not None and second_num not in (None, 0):
+        accuracy = first_num / second_num * 100
+        print(f"{accuracy:.1f}%")
+    else:
+        print("Cannot calculate accuracy: missing or zero total")
