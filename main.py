@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright
 from components.sign_in import sign_in
 from components.start_homework import start_homework
+from components.enter_morfaqaat import enter_morfaqaat
 
 
 def main():
@@ -10,6 +11,7 @@ def main():
 
         sign_in(page)
         start_homework(page)
+        enter_morfaqaat(page)
 
 
 if __name__ == "__main__":

@@ -1,24 +1,46 @@
 from playwright.sync_api import Page
 from components.complete_homework import complete_homework
+from components.copy_homework_answers import extract_correct_answers
+from components.retry_with_answers import retry_with_answers
+
+
+def close_modal_if_exists(page: Page):
+    print("Checking for modal...")
+    page.wait_for_selector("#finishExamPopUp", timeout=30000)
+    print("Modal found, attempting to close...")
+    try:
+        page.evaluate(
+            """
+            () => {
+                const modal = document.querySelector('#finishExamPopUp');
+                const overlay = document.querySelector('.modal-backdrop');
+                if (modal) {
+                    modal.style.display = 'none';
+                    modal.classList.remove('in', 'show');
+                    overlay.remove(); 
+                }
+            }
+        """
+        )
+        print("Modal hidden")
+    except Exception as e:
+        print(f"Failed to hide modal: {e}")
 
 
 def start_homework(page: Page):
     page.goto("https://me.classera.com/student/assignments/show_homework")
     page.wait_for_selector("text= | إعادة المحاولة", timeout=15000)
-    page.wait_for_selector("text= | إعادة المحاولة", timeout=15000)
 
-    homework_list = page.locator("text= | إعادة المحاولة")
+    homework_list = page.locator("text=بدء")
     count = homework_list.count()
 
     for i in range(count):
         # nth = i if its "إعادة المحاولة", nth = 0 if its "بدء"
-        homework = homework_list.nth(i)
+        homework = homework_list.nth(0)
         url = homework.get_attribute("url")
         full_url = "https://me.classera.com" + url
 
-        page.goto(
-            "https://me.classera.com/student/courses/homework_info/cid:revhpiSV5bel_e21L6rnQgC1E9/aid:ER1BN4vCGNysK9FBf33q6gC1E9"
-        )
+        page.goto(full_url)
         page.wait_for_timeout(1000)
 
         print(f"Opening homework {i+1}")
@@ -32,7 +54,11 @@ def start_homework(page: Page):
         second_num = nums[1] if len(nums) > 1 else None
         accuracy = (first_num / second_num) * 100
         print(f"{accuracy:.1f}%")
-
+        if accuracy < 90:
+            print("Result less than 90%, Copying answers for retry...")
+            close_modal_if_exists(page)
+            retry_with_answers(full_url, page, extract_correct_answers(page, full_url))
+            print("finished retrying...")
         page.goto(
             "https://me.classera.com/student/assignments/show_homework#networkfirst"
         )

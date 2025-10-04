@@ -119,7 +119,6 @@ def complete_homework(page: Page):
     print("First:", first_num, type(first_num))
     print("Second:", second_num, type(second_num))
 
-    # Calculate accuracy safely
     if first_num is not None and second_num not in (None, 0):
         accuracy = first_num / second_num * 100
         print(f"{accuracy:.1f}%")
