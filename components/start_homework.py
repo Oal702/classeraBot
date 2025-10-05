@@ -29,7 +29,7 @@ def close_modal_if_exists(page: Page):
 
 def start_homework(page: Page, pageNum):
     page.goto("https://me.classera.com/student/assignments/show_homework")
-    print(pageNum)
+    print("Page: ", pageNum+1)
     if(pageNum > 0):
         page.click('a.page-link >> text="التالي"')
         page.wait_for_timeout(1500)
@@ -39,7 +39,7 @@ def start_homework(page: Page, pageNum):
     homework_list = page.locator("text=بدء")
 
     count = homework_list.count()
-    print(count)
+    print("There is ", count, "homework")
     for i in range(count):
 
         # nth = i if its "إعادة المحاولة", nth = 0 if its "بدء"
@@ -50,24 +50,24 @@ def start_homework(page: Page, pageNum):
         page.goto(full_url)
         page.wait_for_timeout(1000)
 
-        print(f"Opening homework {i+1}")
+        print(f"Opening homework {i+1}", page.locator("li.last").inner_text().strip())
         page.locator('input[type="submit"][value="البدء"]').nth(1).click()
         complete_homework(page)
 
         text = page.text_content("div.final-mark-focus")
-        print("Raw text:", text)
+        #print("Raw text:", text)
         nums = [int(word) for word in text.split() if word.isdigit()]
         first_num = nums[0] if len(nums) > 0 else None
         second_num = nums[1] if len(nums) > 1 else None
         accuracy = (first_num / second_num) * 100
-        print(f"{accuracy:.1f}%")
+        print("The accuracy of " ,page.locator("li.last").inner_text().strip() ,": " ,f"{accuracy:.1f}%")
         if accuracy < 90:
-            print("Result less than 90%, Copying answers for retry...")
+            #print("Result less than 90%, Copying answers for retry...")
             close_modal_if_exists(page)
             data = extract_correct_answers(page, full_url)
             page.wait_for_load_state("domcontentloaded")
             retry_with_answers(full_url, page, data)
-            print("finished retrying...")
+            #print("finished retrying...")
         page.goto("https://me.classera.com/student/assignments/show_homework#networkfirst")
         page.wait_for_timeout(1500)
 

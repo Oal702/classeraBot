@@ -20,7 +20,7 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
     print(f"Retrying homework: {homework_name}")
     print(f"Found {q_count} questions on page")
 
-    for q_index in range(q_count):
+    for q_index in range(q_count + 1):
         question = questions.nth(q_index)
 
         p_tags = question.locator(".question-main-text-wrapper").all_inner_texts()
@@ -68,18 +68,22 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
     # --- Submit ---
     page.once("dialog", auto_accept)
     page.locator("#submitbtn").click()
+    try:
+            
+        marks = page.text_content("div.final-mark-focus")
 
-    marks = page.text_content("div.final-mark-focus")
+        nums = [int(word) for word in marks.split() if word.isdigit()]
+        first_num = nums[0] if len(nums) > 0 else None
+        second_num = nums[1] if len(nums) > 1 else None
 
-    nums = [int(word) for word in marks.split() if word.isdigit()]
-    first_num = nums[0] if len(nums) > 0 else None
-    second_num = nums[1] if len(nums) > 1 else None
+        #print("First:", first_num, type(first_num))
+        #print("Second:", second_num, type(second_num))
 
-    print("First:", first_num, type(first_num))
-    print("Second:", second_num, type(second_num))
+        if first_num is not None and second_num not in (None, 0):
+            accuracy = first_num / second_num * 100
+            print(f"{accuracy:.1f}%")
+        else:
+            print("Cannot calculate accuracy: missing or zero total")
 
-    if first_num is not None and second_num not in (None, 0):
-        accuracy = first_num / second_num * 100
-        print(f"{accuracy:.1f}%")
-    else:
-        print("Cannot calculate accuracy: missing or zero total")
+    except Exception as e:
+            print(f"Error processing accuracy of the homework: {e}")
