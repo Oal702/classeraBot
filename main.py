@@ -10,6 +10,8 @@ load_dotenv()
 def main():
     users = int(os.getenv('USERS'))
     for currentUser in range(users):
+        if(currentUser < 7):
+            continue
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=False)
             page = browser.new_page()

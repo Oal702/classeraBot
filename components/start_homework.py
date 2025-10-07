@@ -34,7 +34,7 @@ def start_homework(page: Page, pageNum):
         page.click('a.page-link >> text="التالي"')
         page.wait_for_timeout(1500)
     
-    page.wait_for_selector("text= | إعادة المحاولة", timeout=15000)
+    page.wait_for_selector("text=بدء", timeout=15000)
 
     homework_list = page.locator("text=بدء")
 
