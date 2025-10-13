@@ -6,9 +6,11 @@ load_dotenv()
 
 
 def sign_in(page: Page, currentUser):
-    print(f"CLASSERA_USERNAME{currentUser+1}",f"CLASSERA_PASSWORD{currentUser+1}")
-    username = os.getenv(str(f"CLASSERA_USERNAME{currentUser+1}"))
-    password = os.getenv(str(f"CLASSERA_PASSWORD{currentUser+1}"))
+    print(
+        f"CLASSERA_USERNAME{currentUser['id']}", f"CLASSERA_PASSWORD{currentUser['id']}"
+    )
+    username = currentUser["username"]
+    password = currentUser["password"]
     print(username, password)
 
     page.goto("https://me.classera.com/student/users/login#networkfirst", timeout=60000)
