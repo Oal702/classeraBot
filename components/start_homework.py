@@ -32,16 +32,13 @@ def close_modal_if_exists(page: Page):
 
 
 def start_homework(page: Page, pageNum: int):
-    page.goto("https://me.classera.com/student/assignments/show_homework")
-    print("Page:", pageNum + 1)
+    print("Page:", pageNum)
 
-    if pageNum > 0:
-        page.get_by_text("التالي").click()
-        page.wait_for_timeout(1500)
-
-    page.wait_for_timeout(3000)
-
-    homework_list = page.locator("tr", has_text="بدء")
+    try:
+        homework_list = page.locator("tr", has_text="بدء")
+    except Exception as e:
+        print("Error locating homework list:", e)
+        return
     count = homework_list.count()
     print("There is", count, "homework")
 
@@ -75,6 +72,17 @@ def start_homework(page: Page, pageNum: int):
                 page.wait_for_load_state("domcontentloaded")
                 if not data:
                     print("No stored answers found, skipping retry.")
+                    page.goto(
+                        "https://me.classera.com/student/assignments/show_homework#networkfirst"
+                    )
+                    page.wait_for_timeout(1000)
+                    current_page = page.locator("a.page-link", has_text=str(pageNum))
+                    try:
+                        current_page.wait_for(state="visible", timeout=3000)
+                    except:
+                        print("No more pages found. Ending pagination.")
+                        break
+                    current_page.click()
                     continue
                 new_accuracy = str(retry_with_answers(full_url, page, data)) + "%"
                 page.wait_for_load_state("domcontentloaded")
@@ -109,19 +117,23 @@ def start_homework(page: Page, pageNum: int):
                 store.add_question(questions)
             else:
                 close_modal_if_exists(page)
-                homework_name = (
-                    page.locator("td", has_text="عنوان الإختبار")
-                    .locator("~ td")
-                    .inner_text()
-                    .strip()
-                )
+                try:
+                    name_locator = page.locator("td", has_text="عنوان الإختبار")
+                    if not name_locator.count():
+                        name_locator = page.locator("td", has_text="عنوان الاختبار")
+
+                    homework_name = name_locator.locator("~ td").inner_text().strip()
+
+                except Exception as e:
+                    print("Error getting homework name:", e)
+                    homework_name = "Unknown"
                 score_text = (
                     page.locator("td", has_text="النقاط")
                     .locator("~ td")
                     .inner_text()
                     .strip()
                 )
-                print(f"Score text: {score_text}. Adding hoemwork to store")
+                print(f"Score text: {score_text}. Adding homework to store")
                 store.add_homework(
                     {
                         "title": homework_name,
@@ -139,12 +151,14 @@ def start_homework(page: Page, pageNum: int):
         page.goto(
             "https://me.classera.com/student/assignments/show_homework#networkfirst"
         )
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(1000)
+        current_page = page.locator("a.page-link", has_text=str(pageNum))
+        try:
+            current_page.wait_for(state="visible", timeout=3000)
+        except:
+            print("No more pages found. Ending pagination.")
+            break
+        current_page.click()
 
-        if pageNum > 0:
-            page.get_by_text("التالي").click()
-            page.wait_for_timeout(1500)
-
-        page.wait_for_timeout(750)
         print("Done\n")
         page.wait_for_timeout(500)
