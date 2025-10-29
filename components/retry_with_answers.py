@@ -44,7 +44,6 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
             print(f"No stored answers found for this question.")
             continue
 
-        # --- Select matching choice ---
         choices = question.locator("div.answer label")
         choice_count = choices.count()
         print(f"Found {choice_count} choices.")
@@ -69,21 +68,22 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
     page.once("dialog", auto_accept)
     page.locator("#submitbtn").click()
     try:
-            
+
         marks = page.text_content("div.final-mark-focus")
 
         nums = [int(word) for word in marks.split() if word.isdigit()]
         first_num = nums[0] if len(nums) > 0 else None
         second_num = nums[1] if len(nums) > 1 else None
 
-        #print("First:", first_num, type(first_num))
-        #print("Second:", second_num, type(second_num))
+        # print("First:", first_num, type(first_num))
+        # print("Second:", second_num, type(second_num))
 
         if first_num is not None and second_num not in (None, 0):
             accuracy = first_num / second_num * 100
             print(f"{accuracy:.1f}%")
+            return accuracy
         else:
             print("Cannot calculate accuracy: missing or zero total")
 
     except Exception as e:
-            print(f"Error processing accuracy of the homework: {e}")
+        print(f"Error processing accuracy of the homework: {e}")

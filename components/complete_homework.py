@@ -26,7 +26,7 @@ def organize_choices(choice_texts):
 
 
 def complete_homework(page: Page):
-    #print("Completing homework...")
+    # print("Completing homework...")
     page.wait_for_load_state("domcontentloaded")
     questions = page.locator(".widget-body:visible")
     count = questions.count()
@@ -37,29 +37,27 @@ def complete_homework(page: Page):
             question = questions.nth(i)
             question.wait_for(state="visible", timeout=5000)
 
+            is_announcement = question.locator("#announcement1")
+            if is_announcement.count() > 0:
+                print("Skipping announcement")
+                continue
+
             p_tags = question.locator(".question-main-text-wrapper").all_inner_texts()
             q_text = " ".join(p_tags).strip()
 
             img_count = question.locator("img").count()
             if not q_text or img_count > 0:
-                #print(f"Checking for image in question {i+1} (imgs={img_count})...")
+
                 img_path = os.path.join("runtime_images", f"screenshot_q{i+1}.png")
                 page.wait_for_timeout(1500)
                 question.screenshot(path=img_path)
                 ocr_text = extract_question_from_image(img_path).strip()
                 if ocr_text:
                     q_text = ocr_text
-                    #print(f"Question {i+1} OCR extracted: {q_text}")
 
             choices = question.locator("div.answer label")
             choicesNum = question.locator("div.answer input").count()
             choice_texts = [c.strip() for c in choices.all_inner_texts() if c.strip()]
-
-            #print("Question:", q_text)
-            #print("Choices:", choice_texts)
-
-            #if not choice_texts:
-                #print(f"No choices found for question {i+1}, skipping.")
 
             prompt = f"""
             Question: {q_text}
@@ -98,16 +96,15 @@ def complete_homework(page: Page):
             )
 
             if not answer:
-                #print(f"ChatGPT gave no valid answer to {q_text!r}. Retrying once.")
+                # print(f"ChatGPT gave no valid answer to {q_text!r}. Retrying once.")
                 response = ask_gpt()
                 raw_answer = response.choices[0].message.content.strip()
                 answer = next((ch for ch in raw_answer if ch.isdigit()), None)
 
             if not answer or not (1 <= int(answer) <= len(choice_texts)):
-                #print("Second try failed again or out of range. Picking random choice.")
                 answer = str(random.randint(1, int(choicesNum)))
-            #print(f"chat gpt gave this answer for question {i+1}: {raw_answer}")
-            choices.nth(int(answer) - 1).click()
+
+            choices.nth(int(answer) - 1).click(timeout=5000)
         except Exception as e:
             print(f"Error processing question {i+1}: {e}")
             continue
@@ -121,13 +118,13 @@ def complete_homework(page: Page):
         first_num = nums[0] if len(nums) > 0 else None
         second_num = nums[1] if len(nums) > 1 else None
 
-        #print("First:", first_num, type(first_num))
-        #print("Second:", second_num, type(second_num))
-
         if first_num is not None and second_num not in (None, 0):
             accuracy = first_num / second_num * 100
             print(f"{accuracy:.1f}%")
+            return count
         else:
             print("Cannot calculate accuracy: missing or zero total")
+            return count
     except Exception as e:
-            print(f"Error processing accuracy of question {i+1}: {e}")
+        print(f"Error processing accuracy of question {i+1}: {e}")
+        return count
