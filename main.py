@@ -2,28 +2,17 @@ from playwright.sync_api import sync_playwright
 from components.sign_in import sign_in
 from components.start_homework import start_homework
 from components.grab_user_score import grab_user_score
-from dotenv import load_dotenv
-from supabase import create_client, Client
 from store import store
 import json
-import os
 
 
-load_dotenv()
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-
-def process_user(currentUser):
+def process_user(username, password):
     try:
-        store.reset()
-        user_id = currentUser["id"]
-
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=False)
             page = browser.new_page()
+
+            currentUser = {"username": username, "password": password}
 
             sign_in(page, currentUser)
 
@@ -50,61 +39,21 @@ def process_user(currentUser):
                     break
 
                 next_li.locator("a").click()
-
                 page.wait_for_selector("#assignments_grid_processing", state="hidden")
                 pageNum += 1
 
-            score = grab_user_score(page)
-            store.set_score(score)
-
-            JSON_data = store.to_json()
-            print(JSON_data)
-
-            if not JSON_data.get("homeworkList"):
-                print("No homework data found. Skipping Supabase update for this user.")
-                browser.close()
-                return
-
-            try:
-                existing_rows = (
-                    supabase.table("user_accounts")
-                    .select("stats")
-                    .eq("id", user_id)
-                    .execute()
-                    .data
-                )
-            except Exception as e:
-                print("Error fetching existing data:", e)
-                existing_rows = []
-
-            try:
-                if existing_rows and existing_rows[0].get("stats"):
-                    print("Merging with existing data")
-                    existing_stats = existing_rows[0]["stats"]
-                    if isinstance(existing_stats, str):
-                        existing_stats = json.loads(existing_stats)
-
-                    # merge score and homework list
-                    existing_stats["score"] = JSON_data["score"]
-                    existing_stats.setdefault("homeworkList", []).extend(
-                        JSON_data.get("homeworkList", [])
-                    )
-                    JSON_data = existing_stats
-            except Exception as e:
-                print("Error merging data:", e)
-
-            supabase.table("user_accounts").update({"stats": JSON_data}).eq(
-                "id", user_id
-            ).execute()
             browser.close()
-    except e as Exception:
-        print("An error occured: ", e)
+    except Exception as e:
+        print("An error occurred:", e)
 
 
 def main():
-    users = supabase.table("user_accounts").select("*").execute().data
-    for currentUser in users:
-        process_user(currentUser)
+    #   You could also do:
+    #    username = "Your Classera Username"
+    #    password = "Your Classera Password"
+    username = input("Enter username: ")
+    password = input("Enter password: ")
+    process_user(username, password)
 
 
 if __name__ == "__main__":
