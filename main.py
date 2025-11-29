@@ -97,7 +97,7 @@ def process_user(currentUser):
                 "id", user_id
             ).execute()
             browser.close()
-    except e as Exception:
+    except Exception as e:
         print("An error occured: ", e)
 
 

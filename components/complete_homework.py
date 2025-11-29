@@ -26,18 +26,20 @@ def organize_choices(choice_texts):
 
 
 def complete_homework(page: Page):
-    # print("Completing homework...")
+
     page.wait_for_load_state("domcontentloaded")
-    questions = page.locator(".widget-body:visible")
+    questions = page.locator(
+        ".widget-body:visible", has_not=page.locator(".announcement")
+    )
     count = questions.count()
     os.makedirs("runtime_images", exist_ok=True)
 
-    for i in range(count + 1):
+    for i in range(count):
         try:
             question = questions.nth(i)
             question.wait_for(state="visible", timeout=5000)
 
-            is_announcement = question.locator("#announcement1")
+            is_announcement = question.locator(".announcement")
             if is_announcement.count() > 0:
                 print("Skipping announcement")
                 continue
@@ -96,7 +98,6 @@ def complete_homework(page: Page):
             )
 
             if not answer:
-                # print(f"ChatGPT gave no valid answer to {q_text!r}. Retrying once.")
                 response = ask_gpt()
                 raw_answer = response.choices[0].message.content.strip()
                 answer = next((ch for ch in raw_answer if ch.isdigit()), None)
@@ -111,20 +112,4 @@ def complete_homework(page: Page):
 
     page.once("dialog", auto_accept)
     page.locator("#submitbtn").click()
-    try:
-        marks = page.text_content("div.final-mark-focus")
-
-        nums = [int(word) for word in marks.split() if word.isdigit()]
-        first_num = nums[0] if len(nums) > 0 else None
-        second_num = nums[1] if len(nums) > 1 else None
-
-        if first_num is not None and second_num not in (None, 0):
-            accuracy = first_num / second_num * 100
-            print(f"{accuracy:.1f}%")
-            return count
-        else:
-            print("Cannot calculate accuracy: missing or zero total")
-            return count
-    except Exception as e:
-        print(f"Error processing accuracy of question {i+1}: {e}")
-        return count
+    return count

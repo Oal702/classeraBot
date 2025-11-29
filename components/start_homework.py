@@ -35,7 +35,7 @@ def start_homework(page: Page, pageNum: int):
     print("Page:", pageNum)
 
     try:
-        homework_list = page.locator("tr", has_text="بدء")
+        homework_list = page.locator("tr", has_text=" | إعادة المحاولة")
     except Exception as e:
         print("Error locating homework list:", e)
         return
@@ -43,9 +43,9 @@ def start_homework(page: Page, pageNum: int):
     print("There is", count, "homework")
 
     for i in range(count):
-        homework = homework_list.nth(0)
+        homework = homework_list.nth(i)
         subject = homework.locator("td").nth(1).inner_text().strip()
-        url = homework.locator("a", has_text="بدء").get_attribute("url")
+        url = homework.locator("a", has_text=" | إعادة المحاولة").get_attribute("url")
         full_url = "https://me.classera.com" + url
 
         page.goto(full_url)
@@ -59,7 +59,7 @@ def start_homework(page: Page, pageNum: int):
 
         try:
             close_modal_if_exists(page)
-            text = page.text_content("div.final-mark-focus")
+            text = page.text_content("div.final-mark-focus", timeout=3000).strip()
             nums = [int(word) for word in text.split() if word.isdigit()]
             first_num = nums[0] if len(nums) > 0 else None
             second_num = nums[1] if len(nums) > 1 else None
@@ -88,7 +88,7 @@ def start_homework(page: Page, pageNum: int):
                 page.wait_for_load_state("domcontentloaded")
                 print(f"New accuracy after retry: {new_accuracy}")
                 close_modal_if_exists(page)
-                text = page.text_content("div.final-mark-focus")
+                text = page.text_content("div.final-mark-focus", timeout=10000).strip()
                 try:
                     name_locator = page.locator("td", has_text="عنوان الإختبار")
                     if not name_locator.count():
