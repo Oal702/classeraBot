@@ -59,7 +59,7 @@ def start_homework(page: Page, pageNum: int):
 
         try:
             close_modal_if_exists(page)
-            text = page.text_content("div.final-mark-focus")
+            text = page.text_content("div.final-mark-focus", timeout=3000).strip()
             nums = [int(word) for word in text.split() if word.isdigit()]
             first_num = nums[0] if len(nums) > 0 else None
             second_num = nums[1] if len(nums) > 1 else None
@@ -88,7 +88,7 @@ def start_homework(page: Page, pageNum: int):
                 page.wait_for_load_state("domcontentloaded")
                 print(f"New accuracy after retry: {new_accuracy}")
                 close_modal_if_exists(page)
-                text = page.text_content("div.final-mark-focus")
+                text = page.text_content("div.final-mark-focus", timeout=10000).strip()
                 try:
                     name_locator = page.locator("td", has_text="عنوان الإختبار")
                     if not name_locator.count():

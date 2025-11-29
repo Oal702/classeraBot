@@ -44,7 +44,7 @@ def process_user(username, password):
 
             browser.close()
     except Exception as e:
-        print("An error occurred:", e)
+        print("An error occured: ", e)
 
 
 def main():

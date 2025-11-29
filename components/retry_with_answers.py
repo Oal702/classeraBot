@@ -14,18 +14,24 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
     page.locator('input[type="submit"][value="البدء"]').nth(1).click()
     page.wait_for_selector(".widget-body:visible", timeout=10000)
 
-    questions = page.locator(".widget-body:visible")
+    questions = page.locator(
+        ".widget-body:visible", has_not=page.locator(".announcement")
+    )
     q_count = questions.count()
     homework_name = page.locator("li.last").inner_text().strip()
     print(f"Retrying homework: {homework_name}")
     print(f"Found {q_count} questions on page")
 
-    for q_index in range(q_count + 1):
+    for q_index in range(q_count):
         question = questions.nth(q_index)
 
         p_tags = question.locator(".question-main-text-wrapper").all_inner_texts()
         q_text = " ".join(p_tags).strip()
-
+        if q_text.strip() == "":
+            print("Question text is empty, checking for image...")
+            img = question.locator("img")
+            if img.count() > 0:
+                q_text = img.first.get_attribute("src")
         print(f"\n[Q{q_index+1}] {q_text}")
 
         matched_item = None
@@ -50,8 +56,14 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
 
         matched = False
         for choice_index in range(choice_count):
-            choice_text = choices.nth(choice_index).inner_text().strip()
-
+            choice = choices.nth(choice_index)
+            choice_text = choice.inner_text().strip()
+            if choice_text.strip() == "":
+                print("Choice text is empty, checking for image...")
+                img = choice.locator("img")
+                if img.count() > 0:
+                    choice_text = img.first.get_attribute("src")
+                    print(f"Extracted image src as choice text: {choice_text}")
             for correct in correct_answers:
                 if choice_text.strip() == correct.strip():
                     choices.nth(choice_index).click()
@@ -67,23 +79,3 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
     # --- Submit ---
     page.once("dialog", auto_accept)
     page.locator("#submitbtn").click()
-    try:
-
-        marks = page.text_content("div.final-mark-focus")
-
-        nums = [int(word) for word in marks.split() if word.isdigit()]
-        first_num = nums[0] if len(nums) > 0 else None
-        second_num = nums[1] if len(nums) > 1 else None
-
-        # print("First:", first_num, type(first_num))
-        # print("Second:", second_num, type(second_num))
-
-        if first_num is not None and second_num not in (None, 0):
-            accuracy = first_num / second_num * 100
-            print(f"{accuracy:.1f}%")
-            return accuracy
-        else:
-            print("Cannot calculate accuracy: missing or zero total")
-
-    except Exception as e:
-        print(f"Error processing accuracy of the homework: {e}")
