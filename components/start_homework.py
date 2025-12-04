@@ -35,7 +35,7 @@ def start_homework(page: Page, pageNum: int):
     print("Page:", pageNum)
 
     try:
-        homework_list = page.locator("tr", has_text=" | إعادة المحاولة")
+        homework_list = page.locator("tr", has_text="بدء")
     except Exception as e:
         print("Error locating homework list:", e)
         return
@@ -43,9 +43,9 @@ def start_homework(page: Page, pageNum: int):
     print("There is", count, "homework")
 
     for i in range(count):
-        homework = homework_list.nth(i)
+        homework = homework_list.nth(0)
         subject = homework.locator("td").nth(1).inner_text().strip()
-        url = homework.locator("a", has_text=" | إعادة المحاولة").get_attribute("url")
+        url = homework.locator("a", has_text="بدء").get_attribute("url")
         full_url = "https://me.classera.com" + url
 
         page.goto(full_url)
