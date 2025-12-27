@@ -46,8 +46,8 @@ def complete_homework(page: Page):
 
             p_tags = question.locator(".question-main-text-wrapper").all_inner_texts()
             q_text = " ".join(p_tags).strip()
-
             img_count = question.locator("img").count()
+
             if not q_text or img_count > 0:
 
                 img_path = os.path.join("runtime_images", f"screenshot_q{i+1}.png")

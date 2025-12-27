@@ -29,7 +29,7 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
         q_text = " ".join(p_tags).strip()
         if q_text.strip() == "":
             print("Question text is empty, checking for image...")
-            img = question.locator("img")
+            img = question.locator("img").first
             if img.count() > 0:
                 q_text = img.first.get_attribute("src")
         print(f"\n[Q{q_index+1}] {q_text}")
@@ -60,7 +60,7 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
             choice_text = choice.inner_text().strip()
             if choice_text.strip() == "":
                 print("Choice text is empty, checking for image...")
-                img = choice.locator("img")
+                img = choice.locator("img").first
                 if img.count() > 0:
                     choice_text = img.first.get_attribute("src")
                     print(f"Extracted image src as choice text: {choice_text}")
@@ -76,6 +76,5 @@ def retry_with_answers(URL: str, page: Page, data: list[dict]):
         if not matched:
             print(f"No choice matched for this question.")
 
-    # --- Submit ---
     page.once("dialog", auto_accept)
     page.locator("#submitbtn").click()

@@ -17,7 +17,7 @@ def extract_correct_answers(page: Page, URL: str) -> list[dict]:
             p_tags = question_block.locator("p").all_inner_texts()
             question_text = " ".join(p_tags).strip()
             if question_text == "":
-                img = question_block.locator("img")
+                img = question_block.locator("img").first
                 question_text = img.get_attribute("src")
                 if not question_text:
                     print(
@@ -47,7 +47,7 @@ def extract_correct_answers(page: Page, URL: str) -> list[dict]:
             if answer_text:
                 answers.append(answer_text)
             else:
-                img = actual_feild.locator("img")
+                img = actual_feild.locator("img").first
                 if img.count() > 0:
                     answer_text = img.first.get_attribute("src")
                     if answer_text:

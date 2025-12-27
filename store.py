@@ -1,6 +1,3 @@
-# store.py
-
-
 class Store:
     def __init__(self):
         self._default_state = {

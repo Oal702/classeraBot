@@ -102,7 +102,13 @@ def process_user(currentUser):
 
 
 def main():
-    users = supabase.table("user_accounts").select("*").execute().data
+    users = (
+        supabase.table("user_accounts")
+        .select("*")
+        .eq("subscription_status", "Active")
+        .execute()
+        .data
+    )
     for currentUser in users:
         process_user(currentUser)
 
