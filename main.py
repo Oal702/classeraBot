@@ -22,8 +22,12 @@ def process_user(currentUser):
         user_id = currentUser["id"]
 
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=False)
-            page = browser.new_page()
+            browser = p.chromium.launch(headless=True)
+            context = browser.new_context()
+            context.grant_permissions(
+                ["notifications"], origin="https://me.classera.com"
+            )
+            page = context.new_page()
 
             sign_in(page, currentUser)
 
@@ -62,6 +66,7 @@ def process_user(currentUser):
 
             if not JSON_data.get("homeworkList"):
                 print("No homework data found. Skipping Supabase update for this user.")
+                context.close()
                 browser.close()
                 return
 
@@ -96,6 +101,7 @@ def process_user(currentUser):
             supabase.table("user_accounts").update({"stats": JSON_data}).eq(
                 "id", user_id
             ).execute()
+            context.close()
             browser.close()
     except Exception as e:
         print("An error occured: ", e)
