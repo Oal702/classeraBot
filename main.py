@@ -1,3 +1,4 @@
+import os
 from playwright.sync_api import sync_playwright
 from components.sign_in import sign_in
 from components.start_homework import start_homework
@@ -10,16 +11,13 @@ def process_user(username, password):
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=False)
-            page = browser.new_page()
-
+            context = browser.new_context(permissions=["notifications"])
+            page = context.new_page()
             currentUser = {"username": username, "password": password}
-
             sign_in(page, currentUser)
-
             pageNum = 1
             while True:
                 page.goto("https://me.classera.com/student/assignments/show_homework")
-
                 current_page = page.locator("a.page-link", has_text=str(pageNum))
                 try:
                     current_page.wait_for(state="visible", timeout=3000)
@@ -37,22 +35,18 @@ def process_user(username, password):
                 except Exception as e:
                     print("Error locating next button:", e)
                     break
-
                 next_li.locator("a").click()
                 page.wait_for_selector("#assignments_grid_processing", state="hidden")
                 pageNum += 1
-
+            context.close()
             browser.close()
     except Exception as e:
         print("An error occured: ", e)
 
 
 def main():
-    #   You could also do:
-    #    username = "Your Classera Username"
-    #    password = "Your Classera Password"
-    username = input("Enter username: ")
-    password = input("Enter password: ")
+    username = os.getenv("CLASSERA_USERNAME", "Your Classera Username")
+    password = os.getenv("CLASSERA_PASSWORD", "Your Classera Password")
     process_user(username, password)
 
 

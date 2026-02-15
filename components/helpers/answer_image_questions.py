@@ -15,39 +15,41 @@ from google.cloud import vision
 #   2. Uncommenting the OCR-disabled version at the bottom
 # ============================================================================
 
-# OCR ENABLED VERSION (default)
-vision_client = vision.ImageAnnotatorClient()
+# OCR ENABLED VERSION (uncomment to use)
+# vision_client = vision.ImageAnnotatorClient()
 
 
-def extract_question_from_image(image_path: str) -> str:
-    """Extract text from image using Google Cloud Vision OCR."""
-    try:
-        with io.open(image_path, "rb") as image_file:
-            content = image_file.read()
+# def extract_question_from_image(image_path: str) -> str:
+#     """Extract text from image using Google Cloud Vision OCR."""
+#     try:
+#         with io.open(image_path, "rb") as image_file:
+#             content = image_file.read()
 
-        image = vision.Image(content=content)
-        response = vision_client.document_text_detection(image=image)
+#         image = vision.Image(content=content)
+#         response = vision_client.document_text_detection(image=image)
 
-        if response.error.message:
-            print("Vision API error:", response.error.message)
-        else:
-            extracted_text = response.full_text_annotation.text.strip()
-            if extracted_text:
-                print("OCR Extracted Text (Vision):", extracted_text)
-                return extracted_text
-    except Exception as e:
-        print("Vision OCR failed:", e)
+#         if response.error.message:
+#             print("Vision API error:", response.error.message)
+#         else:
+#             extracted_text = response.full_text_annotation.text.strip()
+#             if extracted_text:
+#                 print("OCR Extracted Text (Vision):", extracted_text)
+#                 return extracted_text
+#     except Exception as e:
+#         print("Vision OCR failed:", e)
 
-    return ""
+#     return ""
 
 
 # ============================================================================
-# OCR DISABLED VERSION (uncomment to use)
+# OCR DISABLED VERSION (defualt)
 # ============================================================================
 # Use this if you want to skip OCR entirely and rely solely on SRC comparison.
 # The bot will still work perfectly - it just won't attempt OCR on first try.
 #
-# def extract_question_from_image(image_path: str) -> str:
-#     # Skip OCR and rely on SRC comparison (happens automatically on retry)
-#     return ""
+def extract_question_from_image(image_path: str) -> str:
+    # Skip OCR and rely on SRC comparison (happens automatically on retry)
+    return ""
+
+
 # ============================================================================
