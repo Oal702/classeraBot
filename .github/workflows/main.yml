@@ -17,9 +17,12 @@ jobs:
         run: pip install poetry
       - name: Install dependencies
         run: poetry install --no-root
+      - name: Setup Google credentials
+        run: echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' > /tmp/gcloud.json
       - name: Run
         run: poetry run python main.py
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud.json
