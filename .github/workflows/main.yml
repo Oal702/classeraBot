@@ -17,6 +17,8 @@ jobs:
         run: pip install poetry
       - name: Install dependencies
         run: poetry install --no-root
+      - name: Install Playwright browsers
+        run: poetry run playwright install chromium --with-deps
       - name: Setup Google credentials
         run: echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' > /tmp/gcloud.json
       - name: Run
