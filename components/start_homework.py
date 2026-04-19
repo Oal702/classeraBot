@@ -54,7 +54,7 @@ def start_homework(page: Page, pageNum: int):
         name = page.locator("li.last").inner_text().strip()
         print(f"Opening homework {i + 1}: {name}")
 
-        page.locator('input[type="submit"][value="البدء"]').nth(1).click()
+        page.locator('input[type="submit"][value="ابدأ"]').nth(1).click()
         questions = complete_homework(page)
 
         try:
