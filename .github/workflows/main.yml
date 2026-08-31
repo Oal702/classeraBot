@@ -5,22 +5,41 @@ on:
     - cron: '0 15 * * *'
     - cron: '0 20 * * *'
   workflow_dispatch:
+
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /usr/local/.ghcup /usr/local/share/boost \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/powershell \
+            /usr/local/lib/node_modules /usr/share/swift
+          sudo docker image prune -af
+          sudo apt-get clean
+          df -h /
+
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
       - name: Install Poetry
         run: pip install poetry
+
       - name: Install dependencies
         run: poetry install --no-root
+
       - name: Install Playwright browsers
         run: poetry run playwright install chromium --with-deps
+
       - name: Setup Google credentials
-        run: echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' > /tmp/gcloud.json
+        run: |
+          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}' > /tmp/gcloud.json
+          chmod 600 /tmp/gcloud.json
+
       - name: Run
         run: poetry run python main.py
         env:
